@@ -3,9 +3,14 @@
   "version": "0.1.0",
   "description": "Personal AI Radio DJ — Claudio",
   "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
   "scripts": {
     "start": "node server.js",
     "dev": "node --watch server.js",
+    "check": "node --check server.js && node --check src/context.js && node --check src/claude.js && node --check src/scheduler.js && node --check src/state.js && node --check src/static.js && node --check src/tts.js && node --check src/weather.js",
+    "smoke": "node scripts/smoke-test.js",
     "pm2:start": "pm2 start ecosystem.config.cjs",
     "pm2:restart": "pm2 restart claudio",
     "pm2:logs": "pm2 logs claudio",
