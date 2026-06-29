@@ -6,23 +6,47 @@ import { readFile } from 'node:fs/promises';
 import { getState } from './state.js';
 import { getWeather } from './weather.js';
 
+async function safeRead(path, fallback = '') {
+  try {
+    return await readFile(path, 'utf-8');
+  } catch (e) {
+    console.warn(`[Context] 读取 ${path} 失败，使用默认内容:`, e.message);
+    return fallback;
+  }
+}
+
+function formatRecentMessages(messages = []) {
+  const recent = messages.slice(-6).map((m) => {
+    const role = m.role === 'user' ? '用户' : 'Claudio';
+    return `${role}: ${m.content || ''}`;
+  }).filter(Boolean);
+  return recent.length ? recent.join('\n') : '暂无';
+}
+
+function formatRecentPlays(plays = []) {
+  const recent = plays.slice(-8).map((song) => {
+    if (typeof song === 'string') return song;
+    return [song.title, song.artist].filter(Boolean).join(' - ');
+  }).filter(Boolean);
+  return recent.length ? recent.join(', ') : '暂无';
+}
+
 export async function buildContext(userInput) {
   const [persona, taste, routines, moodRules] = await Promise.all([
-    readFile('prompts/dj-persona.md', 'utf-8'),
-    readFile('user/taste.md', 'utf-8'),
-    readFile('user/routines.md', 'utf-8'),
-    readFile('user/mood-rules.md', 'utf-8'),
+    safeRead('prompts/dj-persona.md', '你是 Claudio，一个个人 AI 电台 DJ。'),
+    safeRead('user/taste.md', '用户暂未配置音乐口味。'),
+    safeRead('user/routines.md', '用户暂未配置作息。'),
+    safeRead('user/mood-rules.md', '根据用户输入和当前时间选择合适音乐。'),
   ]);
 
   const state = getState();
   const env = await getEnvContext();
 
-  // 6 片粘成 prompt
   return [
     `## 系统身份\n${persona}`,
     `## 用户品味\n${taste}\n\n### 情绪规则\n${moodRules}`,
     `## 环境信息\n${env}`,
-    `## 历史记忆\n最近播放: ${state.plays.slice(-5).join(', ')}\n最近对话: ${state.messages.slice(-3).join('\n')}`,
+    `## 历史记忆\n最近播放: ${formatRecentPlays(state.plays)}\n最近对话:\n${formatRecentMessages(state.messages)}`,
     `## 用户输入\n${userInput}`,
     `## 作息参考\n${routines}`,
   ].join('\n\n---\n\n');
