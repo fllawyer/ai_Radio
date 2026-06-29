@@ -15,6 +15,13 @@ node_modules/
 cache/tts/*.wav
 cache/tts/*.mp3
 state.json
+.tmp/
+
+# build outputs
+dist/
+release/
+*.dmg
+*.zip
 
 # logs
 logs/
