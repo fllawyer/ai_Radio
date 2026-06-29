@@ -11,6 +11,9 @@ jobs:
     name: Check and build macOS app
     runs-on: macos-latest
     timeout-minutes: 30
+    env:
+      CSC_IDENTITY_AUTO_DISCOVERY: false
+      npm_config_build_from_source: false
 
     steps:
       - name: Checkout
@@ -35,8 +38,6 @@ jobs:
 
       - name: Build DMG
         run: npm run app:build
-        env:
-          CSC_IDENTITY_AUTO_DISCOVERY: false
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
