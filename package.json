@@ -3,19 +3,58 @@
   "version": "0.1.0",
   "description": "Personal AI Radio DJ — Claudio",
   "type": "module",
+  "main": "electron/main.cjs",
   "engines": {
     "node": ">=20"
   },
   "scripts": {
     "start": "node server.js",
     "dev": "node --watch server.js",
-    "check": "node --check server.js && node --check src/context.js && node --check src/claude.js && node --check src/scheduler.js && node --check src/state.js && node --check src/static.js && node --check src/tts.js && node --check src/weather.js",
+    "check": "node --check server.js && node --check src/context.js && node --check src/claude.js && node --check src/scheduler.js && node --check src/state.js && node --check src/static.js && node --check src/tts.js && node --check src/weather.js && node --check scripts/smoke-test.js",
     "smoke": "node scripts/smoke-test.js",
+    "app:dev": "electron .",
+    "app:pack": "electron-builder --mac --dir",
+    "app:build": "electron-builder --mac dmg",
     "pm2:start": "pm2 start ecosystem.config.cjs",
     "pm2:restart": "pm2 restart claudio",
     "pm2:logs": "pm2 logs claudio",
     "docker:up": "docker compose up -d --build",
     "docker:logs": "docker compose logs -f claudio"
   },
-  "dependencies": {}
+  "dependencies": {},
+  "devDependencies": {
+    "electron": "^41.2.1",
+    "electron-builder": "latest"
+  },
+  "build": {
+    "appId": "net.fllawyer.claudio",
+    "productName": "Claudio",
+    "asar": true,
+    "files": [
+      "server.js",
+      "src/**/*",
+      "pwa/**/*",
+      "prompts/**/*",
+      "user/**/*",
+      "scripts/**/*",
+      "electron/**/*",
+      "package.json"
+    ],
+    "directories": {
+      "output": "dist"
+    },
+    "mac": {
+      "category": "public.app-category.music",
+      "target": [
+        "dmg",
+        "zip"
+      ]
+    },
+    "dmg": {
+      "artifactName": "Claudio-${version}-${arch}.${ext}"
+    },
+    "zip": {
+      "artifactName": "Claudio-${version}-${arch}.${ext}"
+    }
+  }
 }
