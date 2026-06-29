@@ -13,8 +13,8 @@
     "check": "node --check server.js && node --check src/context.js && node --check src/claude.js && node --check src/scheduler.js && node --check src/state.js && node --check src/static.js && node --check src/tts.js && node --check src/weather.js && node --check scripts/smoke-test.js",
     "smoke": "node scripts/smoke-test.js",
     "app:dev": "electron .",
-    "app:pack": "electron-builder --mac --dir",
-    "app:build": "electron-builder --mac dmg",
+    "app:pack": "electron-builder --mac --dir --publish never",
+    "app:build": "electron-builder --mac dmg --publish never",
     "pm2:start": "pm2 start ecosystem.config.cjs",
     "pm2:restart": "pm2 restart claudio",
     "pm2:logs": "pm2 logs claudio",
@@ -45,15 +45,27 @@
     },
     "mac": {
       "category": "public.app-category.music",
+      "identity": null,
+      "hardenedRuntime": false,
+      "gatekeeperAssess": false,
       "target": [
-        "dmg",
-        "zip"
+        {
+          "target": "dmg",
+          "arch": [
+            "arm64",
+            "x64"
+          ]
+        },
+        {
+          "target": "zip",
+          "arch": [
+            "arm64",
+            "x64"
+          ]
+        }
       ]
     },
     "dmg": {
-      "artifactName": "Claudio-${version}-${arch}.${ext}"
-    },
-    "zip": {
       "artifactName": "Claudio-${version}-${arch}.${ext}"
     }
   }
