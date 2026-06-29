@@ -1,0 +1,43 @@
+{
+  "morning": {
+    "name": "清晨唤醒 · 焕活",
+    "tags": ["周深", "王菲", "清亮女声", "钢琴"],
+    "samples": ["周深 - 光亮", "王菲 - 你在终点等我", "赵海洋 - 夜空的寂静", "告五人 - 给你一瓶魔法药水"]
+  },
+  "focus": {
+    "name": "专注工作 · 心流",
+    "tags": ["S.E.N.S.", "纯音乐", "林海", "高梨康治"],
+    "samples": ["S.E.N.S. - Palace Memories", "林海 - 醉梦", "S.E.N.S. - 孤影", "GONTITI - 歩いても 歩いても", "Peder B. Helland - A New Beginning"]
+  },
+  "commute": {
+    "name": "通勤路上 · 随行",
+    "tags": ["华语流行", "韩团独立", "欧美流行"],
+    "samples": ["脸红的思春期 - 25", "Why Don't We - Fallin'", "王心凌 - 劈你的雷正在路上", "Ed Sheeran - Bad Habits", "周传雄 - 青花"]
+  },
+  "workout": {
+    "name": "运动能量 · 燃",
+    "tags": ["史诗管弦", "Two Steps From Hell", "Immediate Music"],
+    "samples": ["Two Steps From Hell - Victory", "Immediate Music - Electric Romeo", "Two Steps From Hell - Protectors of the Earth", "Hans Zimmer - Rise", "Liquid Cinema - Skyfire"]
+  },
+  "chill": {
+    "name": "放松时刻 · 治愈",
+    "tags": ["民谣", "治愈", "陈鸿宇", "毛不易"],
+    "samples": ["陈鸿宇 - 理想三旬", "毛不易 - 东北民谣", "周深 - 大鱼", "S.E.N.S. - Wish", "柴田淳 - おかえりなさい。"],
+    "enhanced": true
+  },
+  "night": {
+    "name": "睡前晚安 · 静夜",
+    "tags": ["纯音乐", "极简钢琴", "氛围", "S.E.N.S."],
+    "samples": ["S.E.N.S. - 悲情城市", "林海 - 无羁", "Peder B. Helland - A New Beginning", "GONTITI - 28", "赵海洋 - 夜空的寂静"]
+  },
+  "retro": {
+    "name": "怀旧金曲 · 时光",
+    "tags": ["张学友", "王菲", "张国荣", "中島みゆき"],
+    "samples": ["张学友 - 慢慢", "王菲 - 匆匆那年", "张国荣 - 沉默是金", "中島みゆき - ひとり上手", "赵英俊 - 送你一朵小红花"]
+  },
+  "epic": {
+    "name": "史诗时刻 · 震撼",
+    "tags": ["Two Steps From Hell", "Hans Zimmer", "Audiomachine"],
+    "samples": ["Two Steps From Hell - Rise Above", "Hans Zimmer - Dream Is Collapsing", "Hans Zimmer - Cornfield Chase", "Audiomachine - Breath And Life", "Immediate Music - Serenata Immortale"]
+  }
+}

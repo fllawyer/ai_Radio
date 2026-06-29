@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#1a1a2e">
+  <link rel="manifest" href="/manifest.json">
+  <title>Claudio — 个人 AI 电台</title>
+  <style>
+    :root {
+      --bg: #1a1a2e;
+      --card: #16213e;
+      --accent: #e94560;
+      --text: #eee;
+      --muted: #888;
+    }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+    .app-shell {
+      max-width: 480px;
+      margin: 0 auto;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+    }
+    .tab-bar {
+      display: flex;
+      gap: 8px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid #ffffff15;
+    }
+    .tab-bar button {
+      flex: 1;
+      padding: 10px;
+      border: none;
+      border-radius: 10px;
+      background: var(--card);
+      color: var(--text);
+      font-size: 15px;
+      cursor: pointer;
+      transition: background .2s;
+    }
+    .tab-bar button.active { background: var(--accent); }
+    .view { display: none; flex: 1; overflow-y: auto; padding-top: 16px; }
+    .view.active { display: block; }
+
+    /* Player */
+    .now-playing {
+      background: var(--card);
+      border-radius: 16px;
+      padding: 32px 24px;
+      text-align: center;
+      margin-bottom: 16px;
+      position: relative;
+    }
+    .song-title { font-size: 24px; font-weight: 700; margin-bottom: 6px; }
+    .song-artist { color: var(--muted); font-size: 16px; }
+
+    .tts-indicator {
+      display: none;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      margin-top: 16px;
+      font-size: 13px;
+      color: var(--accent);
+    }
+    .tts-indicator.playing { display: flex; }
+    .tts-wave {
+      display: flex;
+      gap: 3px;
+      height: 20px;
+      align-items: center;
+    }
+    .tts-wave span {
+      width: 3px;
+      background: var(--accent);
+      border-radius: 2px;
+      animation: wave 0.8s ease-in-out infinite;
+    }
+    .tts-wave span:nth-child(1) { height: 8px; animation-delay: 0s; }
+    .tts-wave span:nth-child(2) { height: 14px; animation-delay: 0.1s; }
+    .tts-wave span:nth-child(3) { height: 20px; animation-delay: 0.2s; }
+    .tts-wave span:nth-child(4) { height: 14px; animation-delay: 0.3s; }
+    .tts-wave span:nth-child(5) { height: 8px; animation-delay: 0.4s; }
+    @keyframes wave {
+      0%, 100% { transform: scaleY(0.5); }
+      50% { transform: scaleY(1); }
+    }
+
+    .dj-speech {
+      background: var(--card);
+      border-radius: 12px;
+      padding: 16px;
+      margin: 16px 0;
+      line-height: 1.6;
+      border-left: 3px solid var(--accent);
+      min-height: 48px;
+    }
+
+    /* Chat */
+    .chat-box {
+      flex: 1;
+      overflow-y: auto;
+      padding: 8px 0;
+    }
+    .chat-bubble {
+      padding: 10px 14px;
+      border-radius: 12px;
+      margin: 6px 0;
+      max-width: 85%;
+      line-height: 1.5;
+      animation: pop .25s ease-out;
+    }
+    @keyframes pop {
+      from { opacity: 0; transform: translateY(8px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .chat-bubble.user { background: var(--accent); margin-left: auto; }
+    .chat-bubble.agent { background: var(--card); margin-right: auto; }
+    .chat-bubble.thinking {
+      background: transparent;
+      color: var(--muted);
+      font-style: italic;
+      margin-right: auto;
+    }
+    .chat-input-row {
+      display: flex;
+      gap: 8px;
+      padding-top: 12px;
+    }
+    .chat-input-row input {
+      flex: 1;
+      padding: 12px;
+      border-radius: 10px;
+      border: 1px solid #ffffff20;
+      background: var(--card);
+      color: var(--text);
+      font-size: 15px;
+      outline: none;
+    }
+    .chat-input-row input:focus { border-color: var(--accent); }
+    .chat-input-row button {
+      padding: 12px 20px;
+      border: none;
+      border-radius: 10px;
+      background: var(--accent);
+      color: #fff;
+      font-size: 15px;
+      cursor: pointer;
+    }
+    .chat-input-row button:disabled { opacity: .4; cursor: not-allowed; }
+
+    /* Profile / Settings */
+    .card {
+      background: var(--card);
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 12px;
+    }
+    .card h3 { margin-bottom: 8px; font-size: 17px; }
+    .card p { color: var(--muted); line-height: 1.5; }
+    .stat { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid #ffffff0a; }
+
+    /* Settings input */
+    .setting-row {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .setting-row label {
+      font-size: 14px;
+      color: var(--muted);
+    }
+    .setting-row .input-group {
+      display: flex;
+      gap: 8px;
+    }
+    .setting-row input {
+      flex: 1;
+      padding: 10px 12px;
+      border-radius: 8px;
+      border: 1px solid #ffffff20;
+      background: #ffffff08;
+      color: var(--text);
+      font-size: 14px;
+      outline: none;
+      font-family: monospace;
+    }
+    .setting-row input:focus { border-color: var(--accent); }
+    .setting-row .save-btn {
+      padding: 10px 16px;
+      border: none;
+      border-radius: 8px;
+      background: var(--accent);
+      color: #fff;
+      font-size: 14px;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    .setting-status {
+      font-size: 13px;
+      margin-top: 4px;
+    }
+    .setting-status.ok { color: #4caf50; }
+    .setting-status.error { color: var(--accent); }
+    .brain-badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+    .brain-badge.mock { background: #8883; color: #ccc; }
+    .brain-badge.deepseek { background: #4caf50; color: #fff; }
+  </style>
+</head>
+<body>
+<div class="app-shell">
+  <div class="tab-bar">
+    <button id="tab-player" class="active" onclick="switchTab('player')">Player</button>
+    <button id="tab-profile" onclick="switchTab('profile')">Profile</button>
+    <button id="tab-settings" onclick="switchTab('settings')">Settings</button>
+  </div>
+
+  <!-- Player View -->
+  <div id="view-player" class="view active">
+    <div class="now-playing" id="nowPlaying">
+      <div class="song-title">Claudio</div>
+      <div class="song-artist">等待唤醒...</div>
+      <div class="tts-indicator" id="ttsIndicator">
+        <div class="tts-wave">
+          <span></span><span></span><span></span><span></span><span></span>
+        </div>
+        DJ 正在说话...
+      </div>
+    </div>
+    <div class="dj-speech" id="djSpeech">
+      早上好，我来为你规划今天的音乐旅程。
+    </div>
+    <div class="chat-box" id="chatBox"></div>
+    <div class="chat-input-row">
+      <input id="chatInput" placeholder="跟 Claudio 说点什么..." onkeydown="if(event.key==='Enter')send()" autofocus>
+      <button id="sendBtn" onclick="send()">发送</button>
+    </div>
+  </div>
+
+  <!-- Profile View -->
+  <div id="view-profile" class="view">
+    <div class="card">
+      <h3>我的品味</h3>
+      <p id="tasteSummary">加载中...</p>
+    </div>
+    <div class="card">
+      <h3>播放统计</h3>
+      <div class="stat"><span>今日播放</span><span id="statPlays">0 首</span></div>
+      <div class="stat"><span>会话次数</span><span id="statChats">0 次</span></div>
+    </div>
+    <div class="card">
+      <h3>今日计划</h3>
+      <p id="planSummary">加载中...</p>
+    </div>
+  </div>
+
+  <!-- Settings View -->
+  <div id="view-settings" class="view">
+    <div class="card">
+      <h3>大脑配置</h3>
+      <div class="setting-row">
+        <label>DeepSeek API Key <span id="brainBadge"></span></label>
+        <div class="input-group">
+          <input type="password" id="apiKeyInput" placeholder="sk-..." spellcheck="false">
+          <button class="save-btn" onclick="saveApiKey()">保存</button>
+        </div>
+        <div class="setting-status" id="apiKeyStatus"></div>
+      </div>
+    </div>
+    <div class="card">
+      <h3>声音</h3>
+      <p id="ttsStatus">TTS 状态: 检测中...</p>
+    </div>
+    <div class="card">
+      <h3>节律调度</h3>
+      <p>早间播报 07:00 · 规划 09:00 · 每小时情绪检查</p>
+    </div>
+    <div class="card">
+      <h3>数据</h3>
+      <p>对话记录和偏好自动保存在 <code>state.json</code></p>
+    </div>
+  </div>
+
+  <audio id="ttsAudio" style="display:none"></audio>
+</div>
+
+<script>
+// === SSE ===
+const sse = new EventSource('/api/stream');
+const audio = document.getElementById('ttsAudio');
+const ttsIndicator = document.getElementById('ttsIndicator');
+
+sse.addEventListener('message', (e) => {
+  const msg = JSON.parse(e.data);
+  switch (msg.type) {
+    case 'connected':
+      console.log('[SSE] 已连接');
+      break;
+    case 'thinking':
+      appendBubble('agent', '思考中...', 'thinking');
+      break;
+    case 'reply':
+      clearThinking();
+      appendBubble('agent', msg.say);
+      if (msg.reason) {
+        appendBubble('agent', '选曲：' + msg.reason);
+      }
+      document.getElementById('djSpeech').textContent = msg.say;
+      if (msg.play?.length) {
+        document.querySelector('.song-title').textContent = msg.play[0].title;
+        document.querySelector('.song-artist').textContent = msg.play[0].artist;
+      }
+      break;
+    case 'audio':
+      audio.src = msg.url;
+      audio.play().then(() => ttsIndicator.classList.add('playing'))
+        .catch(() => {});
+      break;
+    case 'error':
+      clearThinking();
+      appendBubble('agent', '出错了：' + msg.message);
+      break;
+  }
+});
+
+audio.addEventListener('ended', () => ttsIndicator.classList.remove('playing'));
+audio.addEventListener('error', () => ttsIndicator.classList.remove('playing'));
+sse.onerror = () => {};
+
+// === UI ===
+function clearThinking() {
+  document.querySelectorAll('.chat-bubble.thinking').forEach(b => b.remove());
+}
+
+function switchTab(tab) {
+  document.querySelectorAll('.tab-bar button').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.getElementById('tab-' + tab).classList.add('active');
+  document.getElementById('view-' + tab).classList.add('active');
+  if (tab === 'profile') loadProfile();
+  if (tab === 'settings') loadSettings();
+}
+
+function appendBubble(role, text, extraClass) {
+  const div = document.createElement('div');
+  div.className = 'chat-bubble ' + role + (extraClass ? ' ' + extraClass : '');
+  div.textContent = text;
+  document.getElementById('chatBox').appendChild(div);
+  div.scrollIntoView({ behavior: 'smooth' });
+}
+
+async function send() {
+  const input = document.getElementById('chatInput');
+  const btn = document.getElementById('sendBtn');
+  const text = input.value.trim();
+  if (!text) return;
+  appendBubble('user', text);
+  input.value = '';
+  btn.disabled = true;
+  try {
+    await fetch('/api/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message: text }),
+    });
+  } catch (e) {
+    appendBubble('agent', '请求失败：' + e.message);
+  } finally {
+    btn.disabled = false;
+    input.focus();
+  }
+}
+
+async function loadProfile() {
+  try {
+    const r = await fetch('/api/taste');
+    const taste = await r.json();
+    document.getElementById('tasteSummary').textContent = JSON.stringify(taste);
+    const r2 = await fetch('/api/plan/today');
+    const plan = await r2.json();
+    document.getElementById('planSummary').textContent = plan.plan || '暂无';
+  } catch(e) {}
+}
+
+// === Settings ===
+async function loadSettings() {
+  try {
+    const r = await fetch('/api/settings');
+    const s = await r.json();
+    const badge = document.getElementById('brainBadge');
+    if (s.hasKey) {
+      document.getElementById('apiKeyInput').placeholder = s.deepseekKey;
+      badge.innerHTML = '<span class="brain-badge deepseek">DeepSeek</span>';
+    } else {
+      badge.innerHTML = '<span class="brain-badge mock">Mock</span>';
+    }
+    document.getElementById('ttsStatus').textContent = s.ttsReady ? 'TTS: 就绪 ✓' : 'TTS: 未安装 (文本模式)';
+  } catch(e) {}
+}
+
+async function saveApiKey() {
+  const input = document.getElementById('apiKeyInput');
+  const status = document.getElementById('apiKeyStatus');
+  const key = input.value.trim();
+  if (!key) { status.textContent = '请输入 API Key'; status.className = 'setting-status error'; return; }
+  try {
+    const r = await fetch('/api/settings', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ deepseekKey: key }),
+    });
+    if (r.ok) {
+      status.textContent = '已保存，切换到 DeepSeek 大脑 ✓';
+      status.className = 'setting-status ok';
+      input.value = '';
+      input.placeholder = key.slice(0, 8) + '...' + key.slice(-4);
+      loadSettings();
+    }
+  } catch(e) {
+    status.textContent = '保存失败：' + e.message;
+    status.className = 'setting-status error';
+  }
+}
+
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/sw.js');
+}
+</script>
+</body>
+</html>

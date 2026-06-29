@@ -1,0 +1,16 @@
+{
+  "name": "claudio",
+  "version": "0.1.0",
+  "description": "Personal AI Radio DJ — Claudio",
+  "type": "module",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js",
+    "pm2:start": "pm2 start ecosystem.config.cjs",
+    "pm2:restart": "pm2 restart claudio",
+    "pm2:logs": "pm2 logs claudio",
+    "docker:up": "docker compose up -d --build",
+    "docker:logs": "docker compose logs -f claudio"
+  },
+  "dependencies": {}
+}

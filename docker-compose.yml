@@ -1,0 +1,14 @@
+services:
+  claudio:
+    build: .
+    container_name: claudio
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      STATE_FILE: /app/data/state.json
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./data:/app/data
+      - ./cache:/app/cache

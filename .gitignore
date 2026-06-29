@@ -1,0 +1,22 @@
+# macOS
+.DS_Store
+
+# dependencies / runtime
+node_modules/
+.venv/
+.claude/
+
+# local env / secrets
+.env
+.env.*
+!.env.example
+
+# runtime data
+cache/tts/*.wav
+cache/tts/*.mp3
+state.json
+
+# logs
+logs/
+*.log
+npm-debug.log*
