@@ -3,12 +3,22 @@
  * 品味 + 常规 + 环境 + 历史 → system prompt
  */
 import { readFile } from 'node:fs/promises';
+import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { getState } from './state.js';
 import { getWeather } from './weather.js';
 
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const PROJECT_ROOT = join(__dirname, '..');
+
+function fromRoot(path) {
+  return join(PROJECT_ROOT, path);
+}
+
 async function safeRead(path, fallback = '') {
+  const fullPath = fromRoot(path);
   try {
-    return await readFile(path, 'utf-8');
+    return await readFile(fullPath, 'utf-8');
   } catch (e) {
     console.warn(`[Context] 读取 ${path} 失败，使用默认内容:`, e.message);
     return fallback;
