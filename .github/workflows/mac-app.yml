@@ -1,0 +1,49 @@
+name: Mac App CI
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  mac-app:
+    name: Check and build macOS app
+    runs-on: macos-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Syntax check
+        run: npm run check
+
+      - name: Smoke test
+        run: npm run smoke
+
+      - name: Package app directory
+        run: npm run app:pack
+
+      - name: Build DMG
+        run: npm run app:build
+        env:
+          CSC_IDENTITY_AUTO_DISCOVERY: false
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: Claudio-macOS-build
+          path: |
+            dist/**/*.dmg
+            dist/**/*.zip
+            dist/mac*/**/*.app
+          if-no-files-found: warn
